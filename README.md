@@ -74,8 +74,6 @@ Backend runs on: http://localhost:3000
 ### Usage
 ### Frontend runs on: 
 ## http://localhost:5173/register 
-(There is no Home page so no route for "/")
-## http://localhost:5173 -> this is empty 
 ### Register a new account.
 
 ### Access the dashboard to:
