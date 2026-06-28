@@ -53,8 +53,8 @@ function Dashboard() {
             <span className="font-display text-lg font-semibold tracking-tight text-ink">TaskFlow</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="text-sm hidden sm:block">Hi, <span className="font-semibold">{name}</span></div>
-            <div className="w-7 h-7 rounded-full bg-[#6365f138] text-[#6366F1] font-bold text-sm flex justify-center items-center">{name.slice(0, 1)}</div>
+            <div className="text-sm hidden sm:block">Hi, <span className="font-semibold capitalize">{name}</span></div>
+            <div className="w-7 h-7 rounded-full bg-[#6365f138] text-[#6366F1] font-bold uppercase text-sm flex justify-center items-center">{name.slice(0, 1)}</div>
           </div>
         </div>
       </header>
