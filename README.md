@@ -39,51 +39,51 @@ project-root/
 
 ### 1. Clone the repository
 
-git clone https://github.com/PrabhakarPanwar/Task-Management.git
-cd project-root
+- git clone https://github.com/PrabhakarPanwar/Task-Management.git
+- cd project-root
 
 ### 2. Install dependencies
    
-cd ./backend
-npm install
+- cd ./backend
+- npm install
 
-cd ./frontend
-npm install
+- cd ./frontend
+- npm install
 
 ### 3. Configure environment variables
-Create a .env file inside the backend folder:
+- Create a .env file inside the backend folder:
 
-PORT=YourPort
-MONGO_URI=yourMongoURI
-JWT_SECRET=yourSecretKey
+- PORT=YourPort
+- MONGO_URI=yourMongoURI
+- JWT_SECRET=yourSecretKey
 
 ### 4. Running the App
 
 ### Start backend:
 
-cd ./backend
-nodemon
+- cd ./backend
+- nodemon
 
 ### Start frontend:
 
-cd ./frontend
-npm run dev
+- cd ./frontend
+- npm run dev
 
 
 ### Usage
 
- Frontend runs on: 
+- Frontend runs on: 
 
- http://localhost:5173/
+-  http://localhost:5173/
 
 ### Register a new account.
 
 ### Access the dashboard to:
 
- Add new tasks
- Edit or delete tasks
- Search tasks by title
- Filter tasks by status
+ - Add new tasks
+ - Edit or delete tasks
+ - Search tasks by title
+ - Filter tasks by status
 
 
 
