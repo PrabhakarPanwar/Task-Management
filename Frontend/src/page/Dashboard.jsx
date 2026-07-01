@@ -10,15 +10,21 @@ function Dashboard() {
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState("all")
   const [tasks, setTasks] = useState([])
+  const [loading, setLoading] = useState(true)
   const name = localStorage.getItem("username") || "user"
   const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     async function load() {
-      await sendVerify()
-      const data = await taskList()
-      if (data) {
-        setTasks(data)
+      setLoading(true)
+      try {
+        await sendVerify()
+        const data = await taskList()
+        if (data) {
+          setTasks(data)
+        }
+      } finally {
+        setLoading(false)
       }
     }
     load()
@@ -111,7 +117,15 @@ function Dashboard() {
         {/* status tab filter  */}
 
         <section className="flex flex-col gap-4">
-          {filteredTasks.length === 0 ? (
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-16">
+              <svg className="w-8 h-8 animate-spin text-[#6366F1]" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+              </svg>
+              <p className="text-sm text-gray-400 mt-3">Loading tasks…</p>
+            </div>
+          ) : filteredTasks.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-16 h-16 bg-[#6365f379] rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-[#6366F3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

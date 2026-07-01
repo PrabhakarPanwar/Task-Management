@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { sendData } from "../utils/DataApi";
 import API_URL from "../utils/api";
+import { useSubmitGuard } from "../hooks/useSubmitGuard";
 
 function Login() {
     const [pwd, setPwd] = useState("");
     const [email, setEmail] = useState("");
+    const { isSubmitting, guard } = useSubmitGuard()
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        sendData(`${API_URL}/api/login`, { pwd, email });
+        guard(() => sendData(`${API_URL}/api/login`, { pwd, email }))
     };
 
     return (
@@ -21,6 +23,7 @@ function Login() {
                     <input
                         type="email"
                         value={email}
+                        disabled={isSubmitting}
                         onChange={(i) => setEmail(i.target.value)}
                         placeholder="E-mail"
                         required
@@ -30,6 +33,7 @@ function Login() {
                     <input
                         type="password"
                         value={pwd}
+                        disabled={isSubmitting}
                         onChange={(i) => setPwd(i.target.value)}
                         placeholder="Password"
                         minLength={8}
@@ -49,7 +53,7 @@ function Login() {
                         type="submit"
                         className="w-full bg-blue-600 text-white py-2 rounded-md text-sm hover:bg-blue-700"
                     >
-                        Login
+                        {isSubmitting ? "Logging in..." : "Login"}
                     </button>
                 </form>
             </div>

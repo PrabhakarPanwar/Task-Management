@@ -2,9 +2,12 @@ import axios from "axios";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import API_URL from "../utils/api";
+import { useSubmitGuard } from "../hooks/useSubmitGuard";
+import { createPortal } from "react-dom";
 
 function DeleteTask({ taskId, setRefresh }) {
     const [open, setOpen] = useState(false);
+    const { isSubmitting, guard } = useSubmitGuard()
 
     const handleDelete = async () => {
         const currentToken = localStorage.getItem("token");
@@ -14,10 +17,10 @@ function DeleteTask({ taskId, setRefresh }) {
         }
 
         try {
-            const res = await axios.delete(`${API_URL}/api/tasks`, {
+            const res = await guard(() => axios.delete(`${API_URL}/api/tasks`, {
                 data: { taskId },
                 headers: { Authorization: `Bearer ${currentToken}` },
-            });
+            }));
 
             if (!res.data.success) {
                 return toast.error(res.data.error);
@@ -51,7 +54,7 @@ function DeleteTask({ taskId, setRefresh }) {
             </button>
 
             {/* Confirmation modal */}
-            {open && (
+            {open && createPortal(
                 <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
                     <div
                         className="rounded-lg absolute inset-0 bg-black/10"
@@ -70,19 +73,21 @@ function DeleteTask({ taskId, setRefresh }) {
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setOpen(false)}
+                                disabled={isSubmitting}
                                 className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleDelete}
+                                disabled={isSubmitting}
                                 className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition-colors"
                             >
-                                Delete
+                                {isSubmitting ? "Deleting Task..." : "Delete Task"}
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>, document.body
             )}
         </>
     );

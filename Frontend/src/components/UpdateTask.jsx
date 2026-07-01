@@ -2,12 +2,15 @@ import axios from 'axios';
 import React, { useState } from 'react'
 import { toast } from 'react-toastify';
 import API_URL from '../utils/api';
+import { useSubmitGuard } from '../hooks/useSubmitGuard';
+import { createPortal } from 'react-dom';
 
 function UpdateTask({ taskId, setRefresh }) {
     const [open, setOpen] = useState(false)
     const [status, setStatus] = useState("completed")
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
+    const { isSubmitting, guard } = useSubmitGuard()
 
     const handleClose = () => {
         setOpen(false)
@@ -29,10 +32,10 @@ function UpdateTask({ taskId, setRefresh }) {
         if (description.trim()) updatedFields.description = description
         if (status) updatedFields.status = status
 
-        const res = await axios.put(`${API_URL}/api/tasks`,
+        const res = await guard(() => axios.put(`${API_URL}/api/tasks`,
             { taskId, title, description, status },
             { headers: { Authorization: `Bearer ${currentToken}` } }
-        )
+        ))
 
         if (!res.data.success) {
             return toast.error(res.data.error);
@@ -50,7 +53,7 @@ function UpdateTask({ taskId, setRefresh }) {
                     <path strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
             </button>
-            {open && (
+            {open && createPortal(
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
                     <div
                         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
@@ -81,6 +84,7 @@ function UpdateTask({ taskId, setRefresh }) {
                                     onChange={(e) => {
                                         setTitle(e.target.value)
                                     }}
+                                    disabled={isSubmitting}
                                     placeholder="New title?"
                                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6366F1]  transition-all"
                                     autoFocus
@@ -94,6 +98,7 @@ function UpdateTask({ taskId, setRefresh }) {
                                 </label>
                                 <textarea
                                     onChange={(e) => setDescription(e.target.value)}
+                                    disabled={isSubmitting}
                                     placeholder="Add some details…"
                                     rows={3}
                                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 transition-all resize-none"
@@ -107,6 +112,7 @@ function UpdateTask({ taskId, setRefresh }) {
                                     <label className='flex-1 flex items-center gap-2 border border-gray-200 rounded-xl p-3 cursor-pointer has-[:checked]:border-blue-500 has-[:checked]:bg-blue-100 transition-colors'>
                                         <input type="radio" name="task-status"
                                             checked={status === "pending"}
+                                            disabled={isSubmitting}
                                             onChange={() => setStatus("pending")}
                                             className='accent-[#6366F3]' />
                                         <span className="text-sm font-medium">Pending</span>
@@ -114,6 +120,7 @@ function UpdateTask({ taskId, setRefresh }) {
                                     <label className='flex-1 flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 cursor-pointer has-[:checked]:border-green-500 has-[:checked]:bg-green-100 transition-colors'>
                                         <input type="radio" name="task-status"
                                             checked={status === "completed"}
+                                            disabled={isSubmitting}
                                             onChange={() => setStatus("completed")}
                                             className='accent-green-400' />
                                         <span className="text-sm font-medium">Completed</span>
@@ -124,20 +131,22 @@ function UpdateTask({ taskId, setRefresh }) {
                             <div className="flex gap-2 pt-1">
                                 <button
                                     onClick={handleClose}
+                                    disabled={isSubmitting}
                                     className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleSubmit}
+                                    disabled={isSubmitting}
                                     className="flex-1 px-4 py-2.5 rounded-xl bg-[#6366F1] text-white text-sm font-semibold hover:bg-[#4F46E5] transition-colors"
                                 >
-                                    Add Task
+                                    {isSubmitting ? "Updating Task..." : "Update Task"}
                                 </button>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>, document.body
             )}
         </>
     )

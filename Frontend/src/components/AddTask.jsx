@@ -2,6 +2,7 @@ import axios from 'axios'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import API_URL from './../utils/api';
+import { useSubmitGuard } from '../hooks/useSubmitGuard';
 
 function AddTask({ setRefresh }) {
     const [open, setOpen] = useState(false)
@@ -9,6 +10,7 @@ function AddTask({ setRefresh }) {
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
     const [error, setError] = useState("")
+    const { isSubmitting, guard } = useSubmitGuard()
 
     const handleClose = () => {
         setOpen(false)
@@ -29,9 +31,9 @@ function AddTask({ setRefresh }) {
             window.location.href = "/login";
             return window.alert("Access denied. Please Login.");
         }
-        const res = await axios.post(`${API_URL}/api/tasks`, { title, description, status }, {
+        const res = await guard(() => axios.post(`${API_URL}/api/tasks`, { title, description, status }, {
             headers: { Authorization: `Bearer ${currentToken}` },
-        })
+        }))
         if (!res.data.success) {
             return toast.error(res.data.error);
         }
@@ -87,6 +89,7 @@ function AddTask({ setRefresh }) {
                                         setTitle(e.target.value)
                                         setError("")
                                     }}
+                                    disabled={isSubmitting}
                                     placeholder="What needs to be done?"
                                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6366F1]  transition-all"
                                     autoFocus
@@ -104,6 +107,7 @@ function AddTask({ setRefresh }) {
                                 </label>
                                 <textarea
                                     onChange={(e) => setDescription(e.target.value)}
+                                    disabled={isSubmitting}
                                     placeholder="Add some details…"
                                     rows={3}
                                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 transition-all resize-none"
@@ -139,15 +143,17 @@ function AddTask({ setRefresh }) {
                             <div className="flex gap-2 pt-1">
                                 <button
                                     onClick={handleClose}
+                                    disabled={isSubmitting}
                                     className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleSubmit}
+                                    disabled={isSubmitting}
                                     className="flex-1 px-4 py-2.5 rounded-xl bg-[#6366F1] text-white text-sm font-semibold hover:bg-[#4F46E5] transition-colors"
                                 >
-                                    Add Task
+                                    {isSubmitting ? "Adding Task..." : "Add Task"}
                                 </button>
                             </div>
                         </div>

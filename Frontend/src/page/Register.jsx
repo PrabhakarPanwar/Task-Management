@@ -2,15 +2,17 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { sendData } from "../utils/DataApi";
 import API_URL from "../utils/api";
+import { useSubmitGuard } from "../hooks/useSubmitGuard";
 
 function Register() {
     const [name, setName] = useState("");
     const [pwd, setPwd] = useState("");
     const [email, setEmail] = useState("");
+    const { isSubmitting, guard } = useSubmitGuard()
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        sendData(`${API_URL}/api/register`, { name, pwd, email });
+        guard(() => sendData(`${API_URL}/api/register`, { name, pwd, email }));
     };
 
     return (
@@ -22,6 +24,7 @@ function Register() {
                     <input
                         type="text"
                         value={name}
+                        disabled={isSubmitting}
                         onChange={(i) => setName(i.target.value)}
                         placeholder="Username"
                         required
@@ -32,6 +35,7 @@ function Register() {
                     <input
                         type="email"
                         value={email}
+                        disabled={isSubmitting}
                         onChange={(i) => setEmail(i.target.value)}
                         placeholder="E-mail"
                         required
@@ -41,6 +45,7 @@ function Register() {
                     <input
                         type="password"
                         value={pwd}
+                        disabled={isSubmitting}
                         onChange={(i) => setPwd(i.target.value)}
                         placeholder="Password"
                         minLength={8}
@@ -60,7 +65,7 @@ function Register() {
                         type="submit"
                         className="w-full bg-blue-600 text-white py-2 rounded-md text-sm font-semibold hover:bg-blue-700"
                     >
-                        Register
+                        {isSubmitting ? "Registering..." : "Register"}
                     </button>
                 </form>
             </div>
