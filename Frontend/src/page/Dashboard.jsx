@@ -4,6 +4,7 @@ import AddTask from '../components/AddTask'
 import { sendVerify, taskList } from '../utils/DataApi';
 import DeleteTask from './../components/DeleteTask';
 import UpdateTask from '../components/UpdateTask';
+import TaskView from '../components/TaskView';
 
 function Dashboard() {
 
@@ -11,23 +12,27 @@ function Dashboard() {
   const [filter, setFilter] = useState("all")
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
-  const name = localStorage.getItem("username") || "user"
   const [refresh, setRefresh] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const name = localStorage.getItem("username") || "user"
 
   useEffect(() => {
     async function load() {
-      setLoading(true)
+      setLoading(true);
+      await sendVerify();
       try {
-        await sendVerify()
-        const data = await taskList()
+        const data = await taskList();
         if (data) {
-          setTasks(data)
+          setTasks(data);
         }
+      } catch (err) {
+        console.error("Failed to load dashboard:", err);
+        return
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-    load()
+    load();
   }, [refresh]);
 
   const filteredTasks = tasks
@@ -139,12 +144,12 @@ function Dashboard() {
             </div>
           ) : (
             filteredTasks.map((i) => (
-              <div key={i._id} className='flex justify-between gap-2 p-4 items-center shadow-md rounded-lg bg-white hover:shadow-lg hover:scale-[1.01]'>
+              <div key={i._id} onClick={() => setSelectedTask(i)} className='flex justify-between gap-2 p-4 items-center shadow-md rounded-lg bg-white hover:shadow-lg hover:scale-[1.01] active:scale-[1] '>
                 <div>
                   <p className="font-medium">{i.title}</p>
                   <p className='text-[12px] text-gray-500'>{i.description}</p>
                 </div>
-                <div className='flex items-center gap-3'>
+                <div className='flex items-center gap-3' onClick={(e) => e.stopPropagation()}>
                   <span className={
                     i.status === "pending"
                       ? "text-xs font-medium px-3 py-1 rounded-xl border border-blue-400 bg-blue-100 text-blue-600"
@@ -153,9 +158,9 @@ function Dashboard() {
                     {i.status}
                   </span>
 
-                  {/* update button component  */}
 
-                  <UpdateTask taskId={i._id} setRefresh={setRefresh} />
+                  {/* update button component  */}
+                  <UpdateTask taskId={i._id} task={i} setRefresh={setRefresh} />
 
                   {/* delete button component  */}
 
@@ -165,6 +170,19 @@ function Dashboard() {
             ))
           )}
         </section>
+
+        {/* taskView component*/}
+
+        {selectedTask && (
+          <TaskView
+            taskId={selectedTask._id}
+            title={selectedTask.title}
+            description={selectedTask.description}
+            status={selectedTask.status}
+            points={selectedTask.points}
+            onClose={() => setSelectedTask(null)}
+          />
+        )}
       </div>
     </div>
   )

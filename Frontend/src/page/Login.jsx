@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { sendData } from "../utils/DataApi";
-import API_URL from "../utils/api";
+import {API_URL} from "../utils/api";
 import { useSubmitGuard } from "../hooks/useSubmitGuard";
 
 function Login() {

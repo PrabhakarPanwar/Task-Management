@@ -1,14 +1,15 @@
-import axios from 'axios'
 import React, { useState } from 'react'
-import { toast } from 'react-toastify'
-import API_URL from './../utils/api';
 import { useSubmitGuard } from '../hooks/useSubmitGuard';
+import api from '../utils/api';
+import { toastify } from '../utils/toast';
+import PointsInput from './PointsInput';
 
 function AddTask({ setRefresh }) {
     const [open, setOpen] = useState(false)
     const [status, setStatus] = useState("completed")
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
+    const [points, setPoints] = useState([]);
     const [error, setError] = useState("")
     const { isSubmitting, guard } = useSubmitGuard()
 
@@ -25,19 +26,9 @@ function AddTask({ setRefresh }) {
             setError("Task title is required.")
             return
         }
+        const res = await guard(() => api.post("/api/tasks", { title, description, status, points },))
+        toastify(res, "/login")
 
-        const currentToken = localStorage.getItem("token");
-        if (!currentToken) {
-            window.location.href = "/login";
-            return window.alert("Access denied. Please Login.");
-        }
-        const res = await guard(() => axios.post(`${API_URL}/api/tasks`, { title, description, status }, {
-            headers: { Authorization: `Bearer ${currentToken}` },
-        }))
-        if (!res.data.success) {
-            return toast.error(res.data.error);
-        }
-        toast.success(res.data.msg);
         setRefresh(prev => !prev);
         handleClose()
     }
@@ -85,6 +76,7 @@ function AddTask({ setRefresh }) {
                                 </label>
                                 <input
                                     type="text"
+                                    value={title}
                                     onChange={(e) => {
                                         setTitle(e.target.value)
                                         setError("")
@@ -106,6 +98,7 @@ function AddTask({ setRefresh }) {
                                     Description <span className="normal-case text-gray-400">(optional)</span>
                                 </label>
                                 <textarea
+                                value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     disabled={isSubmitting}
                                     placeholder="Add some details…"
@@ -113,6 +106,10 @@ function AddTask({ setRefresh }) {
                                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 transition-all resize-none"
                                 />
                             </div>
+
+                            {/* Inputs */}
+
+                            <PointsInput points={points} setPoints={setPoints} disabled={isSubmitting} />
 
                             {/* status  */}
 

@@ -1,36 +1,23 @@
-import axios from "axios";
 import React, { useState } from "react";
-import { toast } from "react-toastify";
-import API_URL from "../utils/api";
+import api from "../utils/api";
 import { useSubmitGuard } from "../hooks/useSubmitGuard";
 import { createPortal } from "react-dom";
+import { toastify } from "../utils/toast";
 
 function DeleteTask({ taskId, setRefresh }) {
     const [open, setOpen] = useState(false);
     const { isSubmitting, guard } = useSubmitGuard()
 
     const handleDelete = async () => {
-        const currentToken = localStorage.getItem("token");
-        if (!currentToken) {
-            window.location.href = "/login";
-            return window.alert("Access denied. Please Login.");
-        }
+        const res = await guard(() => api.delete("/api/tasks", {
+            data: { taskId },
+        }));
+        toastify(res, "/login")
 
-        try {
-            const res = await guard(() => axios.delete(`${API_URL}/api/tasks`, {
-                data: { taskId },
-                headers: { Authorization: `Bearer ${currentToken}` },
-            }));
+        setRefresh((prev) => !prev);
+        setOpen(false);
 
-            if (!res.data.success) {
-                return toast.error(res.data.error);
-            }
-            toast.success(res.data.msg);
-            setRefresh((prev) => !prev);
-            setOpen(false);
-        } catch (err) {
-            toast.error("Something went wrong. Please try again.");
-        }
+
     };
 
     return (

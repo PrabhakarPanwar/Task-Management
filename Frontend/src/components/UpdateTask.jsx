@@ -1,53 +1,46 @@
-import axios from 'axios';
 import React, { useState } from 'react'
-import { toast } from 'react-toastify';
-import API_URL from '../utils/api';
+import api from '../utils/api';
 import { useSubmitGuard } from '../hooks/useSubmitGuard';
 import { createPortal } from 'react-dom';
+import { toastify } from '../utils/toast';
+import PointsInput from './PointsInput';
 
-function UpdateTask({ taskId, setRefresh }) {
+function UpdateTask({ taskId, setRefresh, task }) {
     const [open, setOpen] = useState(false)
-    const [status, setStatus] = useState("completed")
-    const [title, setTitle] = useState("")
-    const [description, setDescription] = useState("")
+    const [status, setStatus] = useState(task?.status || "completed")
+    const [title, setTitle] = useState(task?.title || "")
+    const [description, setDescription] = useState(task?.description || "")
+    const [points, setPoints] = useState(task?.points || []);
     const { isSubmitting, guard } = useSubmitGuard()
+
+    const handleOpen = () => {
+        setTitle(task?.title || "")
+        setDescription(task?.description || "")
+        setStatus(task?.status || "completed")
+        setPoints(task?.points || [])
+        setOpen(true)
+    }
 
     const handleClose = () => {
         setOpen(false)
-        setTitle("")
-        setDescription("")
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        const currentToken = localStorage.getItem("token");
-        if (!currentToken) {
-            window.location.href = "/login";
-            return window.alert("Access denied. Please Login.");
-        }
-
-        const updatedFields = { taskId }
-        if (title.trim()) updatedFields.title = title
-        if (description.trim()) updatedFields.description = description
-        if (status) updatedFields.status = status
-
-        const res = await guard(() => axios.put(`${API_URL}/api/tasks`,
-            { taskId, title, description, status },
-            { headers: { Authorization: `Bearer ${currentToken}` } }
+        const res = await guard(() => api.put("/api/tasks",
+            { taskId, title, description, status, points },
         ))
+        toastify(res, "/login")
 
-        if (!res.data.success) {
-            return toast.error(res.data.error);
-        }
-        toast.success(res.data.msg);
         setRefresh(prev => !prev);
         setOpen(false)
     }
+
     return (
         <>
             <button
-                onClick={() => setOpen(true)}
+                onClick={handleOpen}
                 className="w-8 h-8 rounded-lg bg-mist hover:bg-[#6365f34f] hover:text-[#6366F3] flex items-center justify-center text-slate transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -75,28 +68,29 @@ function UpdateTask({ taskId, setRefresh }) {
                         </div>
 
                         <div className="flex flex-col gap-4">
+                            {/* Title */}
                             <div>
                                 <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">
                                     Title
                                 </label>
                                 <input
                                     type="text"
-                                    onChange={(e) => {
-                                        setTitle(e.target.value)
-                                    }}
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
                                     disabled={isSubmitting}
                                     placeholder="New title?"
                                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6366F1]  transition-all"
                                     autoFocus
                                 />
-
                             </div>
 
+                            {/* Description */}
                             <div>
                                 <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">
                                     Description <span className="normal-case text-gray-400">(optional)</span>
                                 </label>
                                 <textarea
+                                    value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     disabled={isSubmitting}
                                     placeholder="Add some details…"
@@ -104,6 +98,12 @@ function UpdateTask({ taskId, setRefresh }) {
                                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 transition-all resize-none"
                                 />
                             </div>
+
+                            {/* Add a new point */}
+                            <PointsInput points={points} setPoints={setPoints} disabled={isSubmitting}/>
+
+
+                            {/* Status */}
                             <div>
                                 <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">
                                     STATUS
@@ -128,6 +128,7 @@ function UpdateTask({ taskId, setRefresh }) {
                                 </div>
                             </div>
 
+                            {/* button */}
                             <div className="flex gap-2 pt-1">
                                 <button
                                     onClick={handleClose}
