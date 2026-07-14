@@ -11,15 +11,22 @@ function Register() {
     const [seeThrough, setSeeThrough] = useState(false);
     const { isSubmitting, guard } = useSubmitGuard()
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        guard(() => sendData(`${API_URL}/api/register`, { name, pwd, email }));
+        await guard(() => sendData(`${API_URL}/api/register`, { name, pwd, email }));
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="w-full max-w-sm bg-white p-6 rounded-lg shadow">
-                <h2 className="text-lg font-semibold mb-4 text-center">Register</h2>
+        <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+
+            {/* Decorative blurred shapes for depth */}
+            <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
+
+            <div className="relative w-full max-w-sm bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-white/50">
+                <h2 className="text-xl font-bold mb-1 text-center text-gray-800">Create Account</h2>
+                <p className="text-sm text-gray-500 text-center mb-6">Join us and get started</p>
 
                 <form onSubmit={handleSubmit} className="relative mb-3">
                     <input
@@ -102,7 +109,8 @@ function Register() {
 
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 text-white py-2 rounded-md text-sm font-semibold hover:bg-blue-700"
+                        disabled={isSubmitting}
+                        className="w-full bg-blue-600 text-white py-2 rounded-md text-sm font-semibold hover:bg-blue-700 disabled:opacity-60"
                     >
                         {isSubmitting ? "Registering..." : "Register"}
                     </button>

@@ -6,19 +6,21 @@ import { toastify } from "./toast";
 export async function sendData(url, data) {
   try {
     const res = await axios.post(url, data);
+    if (!res.data.success) {
+      return toast.error(res.data.error);
+    }
     if (res.data.token) {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("username", res.data.userName);
     }
-    if (!res.data.success) {
-      return toast.error(res.data.error);
-    }
     toast.success(res.data.msg);
     setTimeout(() => {
-      window.location.href = "/dashboard";
-    });
-  } catch {
-    toast.error("Something went wrong. Please try again.");
+      window.location.href = res.data.location || "/dashboard";
+    }, 800);
+  } catch (err) {
+    toast.error(
+      err.response?.data?.error || "Something went wrong. Please try again.",
+    );
   }
 }
 
