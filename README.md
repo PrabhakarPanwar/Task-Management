@@ -1,4 +1,4 @@
-# ✅ MERN Task Management App (https://task-management-r5rg.onrender.com)  (Live on Render)
+# ✅ Task Management App 
 
 A simple **Task Management Web App** built with the MERN stack (MongoDB, Express, React, Node.js).  
 Users can register, log in, and manage their tasks with full CRUD functionality.
